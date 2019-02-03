@@ -21,20 +21,21 @@ punctuation = {'...': 'ellipsis', '.': 'dot',',':'comma','?':'question mark',
                                     '!': 'exclamation mark',':': 'colon',
                                     ';':'semicolon','-':'hyphen' ,'(':'left parenthesis',
                                     ')':'right parenthesis', '“':'quotation left',
-                                    '”': 'quotation right', '"': 'quotation' }
+                                    '”': 'quotation right', '"': 'quotation', '–': 'hyphen'}
 
 Milionowy = '.' # it is assumed that the script is run in the same directory that contains folders
                 # from milionowy
 
-def extractor(folder = Milionowy):
+def extractor(folder = Milionowy, simplified=False):
 
     listOfTaggedWords = []
     # make a list of all the folders
+    proto_dir = os.getcwd()
     os.chdir(folder)
     curdir = os.getcwd()
     directories = [i for i in glob.glob('*') if os.path.isdir(i)]
     full_dir_names = [os.path.join(curdir, i) for i in directories]
-
+    dot = False
 
     for folder in full_dir_names:
 
@@ -46,29 +47,37 @@ def extractor(folder = Milionowy):
 
             # root[1] - teiCorpus
             # root[1][1][0] - body - it consists of sentences
-
+            from importlib import reload
             for sentence in root[1][1][0]:
                 # sentence[0][0] consists of words
                 sent = []
-                for word in sentence[0]:
-
-
+                dot = 0
+                for index, word in enumerate(sentence[0]):
                     logos = word[0][0][0].text
-
-
 
                     tag = word[0][2][0][1][0].text
                     # tag has this kind of structure:
                     # chodzić:fin:sg:ter:imperf
                     # extract only grammar info
-                    if tag:
-                        tag = ",".join(tag.split(':')[1:])
 
-                    # puctuation marks will be dealt here
 
-                    if logos in punctuation.keys():
-                        tag = logos
+                    if dot == 2 and logos == '.':
+                        sent.append(('...', 'ellipsis'))
 
+                        dot = 0
+                        continue
+                    elif dot == 1 and logos == '.':
+                        dot = 2
+                        continue
+
+                    elif logos == '.' and index + 1 == len(sentence[0]):
+                        sent.append(('.', 'dot'))
+
+                        dot = 0
+                        continue
+                    elif logos == '.':
+                        dot = 1
+                        continue
 
                     # for some reason punctuation marks and
                     # some other words have additional field
@@ -78,18 +87,97 @@ def extractor(folder = Milionowy):
                     # and so node with grammsr
                     # info is moved one step further.
                     # If this is the case the grammar info is taken from here
-                    if tag == None:
-                        tag = word[0][3][0][1][0].text
-                        tag = ",".join(tag.split(':')[1:])
+                    if not tag:
 
+                        tag = word[0][3][0][1][0].text
+
+
+                    if logos in punctuation.keys():
+
+                        tag = punctuation[logos]
+                        sent.append((logos, tag))
+                        continue
+
+                    # cut from tag lemma
+                    tag_desc = tag.split(':')[1:]
+
+
+
+                    if simplified and len(tag_desc)> 1:
+                        # tags will be here simplified
+                        # ger
+
+                        if tag_desc[0] == 'ger':
+                            # only pos and case
+                            tag = tag_desc[0] + ',' + tag_desc[2]
+                        elif tag_desc[0] == 'subst':
+                            tag = tag_desc[0] + ',' + tag_desc[2]
+                        elif tag_desc[0] == 'adj':
+                            # adj also have comp info
+
+                            tag = tag_desc[0] + ',' + tag_desc[2] + ',' + tag_desc[4]
+                            if simplified == 'uber':
+                                tag = tag_desc[0] + ',' + tag_desc[2]
+                        elif tag_desc[0] in ['num', 'numcol']:
+                            # in numer. only case, numcol means numeral noun
+                            tag = tag_desc[0] + ',' + tag_desc[2]
+                        elif tag_desc[0] == 'prep':
+                            tag = tag_desc[0] + ',' + tag_desc[1]
+                        # in verbs only pos and aspect
+                        elif tag_desc[0] in ['fin', 'praet', 'bedzie', 'impt']:
+                            tag = tag_desc[0] + ',' + tag_desc[3]
+                            if simplified == 'uber':
+                                tag = tag_desc[0]
+                        # get rid of agglutinated endings
+                        elif tag_desc[0] == 'aglt':
+                            continue
+                        elif tag_desc[0] == 'depr':
+                            # non standard nouns, but still nouns (szkopy)
+                            tag = 'subst,' + tag_desc[2]
+                        elif tag_desc[0] in ['pact', 'ppas']:
+                            tag = tag_desc[0] + ',' + tag_desc[2] + ',' + tag_desc[4]
+                            if simplified == 'uber':
+                                tag = tag_desc[0] + ',' + tag_desc[2]
+                       
+                        elif tag_desc[0] == 'ppron12':
+                            tag = tag_desc[0] + ',' + tag_desc[2]
+                        elif tag_desc[0] == 'ppron3':
+                            tag = tag_desc[0] + ',' + tag_desc[2] + ',' + tag_desc[-2] + ',' + tag_desc[-1]
+                        elif tag_desc[0] == 'prep':
+                            # get rid of info about nwok and wok forms
+                            tag = tag_desc[0] + ',' + tag_desc[1]
+                        # qub is beyond me, it obviously contains every other particle like 'nie', 'by', but also some pron like się, czy,
+                        elif tag_desc[0] == 'qub':
+                            tag = tag_desc[0]
+
+                        elif tag_desc[0] == 'xxx':
+                            tag = 'foreign'
+                        elif tag_desc[0] == 'winien':
+                            tag = tag_desc[0]
+                        else:
+                            tag = ','.join(tag_desc)
+                    elif simplified:
+                        tag = tag_desc[0]
+
+                    else:
+                        tag = ','.join(tag_desc)
+
+
+                    # also agl by and nie should be identified with some precision
+                    if logos == 'nie':
+                        tag = logos
+                    if logos == 'by':
+                        tag = 'aggl_by'
+
+                    # agglutinated 'by' is described as 'qub', so it's quite simple to recognize a verb in cond mood
                     sent.append((logos, tag))
                 listOfTaggedWords.append(sent)
 
-
+    os.chdir(proto_dir)
     return listOfTaggedWords
 
 
-
+from nltk.tag.perceptron import PerceptronTagger
 
 
 """

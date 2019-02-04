@@ -26,7 +26,8 @@ punctuation = {'...': 'ellipsis', '.': 'dot',',':'comma','?':'question mark',
 Milionowy = '.' # it is assumed that the script is run in the same directory that contains folders
                 # from milionowy
 
-def extractor(folder = Milionowy, simplified=False):
+
+def extractor(folder=Milionowy, simplified=False, save_as=None):
 
     listOfTaggedWords = []
     # make a list of all the folders
@@ -128,9 +129,12 @@ def extractor(folder = Milionowy, simplified=False):
                             tag = tag_desc[0] + ',' + tag_desc[3]
                             if simplified == 'uber':
                                 tag = tag_desc[0]
-                        # get rid of agglutinated endings
+                        # get rid of persons in agglutinated endings
                         elif tag_desc[0] == 'aglt':
-                            continue
+                            tag = tag_desc[0]
+                        # get rid of aspect
+                        elif tag_desc[0] in ['imps', 'inf', 'pcon'] and simplified == 'uber':
+                            tag = tag_desc[0]
                         elif tag_desc[0] == 'depr':
                             # non standard nouns, but still nouns (szkopy)
                             tag = 'subst,' + tag_desc[2]
@@ -158,27 +162,25 @@ def extractor(folder = Milionowy, simplified=False):
                             tag = ','.join(tag_desc)
                     elif simplified:
                         tag = tag_desc[0]
-
                     else:
                         tag = ','.join(tag_desc)
-
 
                     # also agl by and nie should be identified with some precision
                     if logos == 'nie':
                         tag = logos
-                    if logos == 'by':
+                    if logos == 'by' and tag == 'qub':
                         tag = 'aggl_by'
 
-                    # agglutinated 'by' is described as 'qub', so it's quite simple to recognize a verb in cond mood
+                    # agglutinated 'by' is described as 'qub', so it's quite simple to recognize a verb in cond mood.,
                     sent.append((logos, tag))
                 listOfTaggedWords.append(sent)
 
     os.chdir(proto_dir)
+    if save_as:
+        file = open(save_as, 'w')
+        file.write('tagged =' + str(listOfTaggedWords))
+        file.close()
     return listOfTaggedWords
-
-
-from nltk.tag.perceptron import PerceptronTagger
-
 
 """
 An example of parsed xml

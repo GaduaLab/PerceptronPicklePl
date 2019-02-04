@@ -2,13 +2,17 @@
 
 
 
-Provided are three pretrained models for Polish language:
+Provided are six pretrained models for Polish language:
 
 polish_full_5.pickle
 polish_simplified_5.pickle
 polish_simplified_uber_5.pickle
 
-They have been trained on Milionowy Korpus (it can be downloaded from here: http://nkjp.pl/index.php?page=14&lang=0)
+and their merged versions.
+Merged versions (maybe it's not the best name) are trained on tags, where agglutinated endings and particles are not treated as single words. This allows to use those models for tagging text, that is not prepared in such a way, that all agglutination particles are detached from words.
+
+
+They have been trained on lists of tagged sentence/words extracted from Milionowy Korpus (it can be downloaded from here: http://nkjp.pl/index.php?page=14&lang=0).
 
 
 In order to tag with NLTK perceptron tagger polish sentences, they must be loaded manually in this way:
@@ -21,7 +25,9 @@ In order to tag with NLTK perceptron tagger polish sentences, they must be loade
 
 `tagger.tag(sentence_as_a_list_of_words) (eg. tagger.tag(['Ala', 'ma', 'kota', '.'])`
 
+If you would like to train again a model, do this:
 
+`tagger.train(tagged_corpus_of_sentences, save_loc='path_where_you_want_to_save_model', nr_iter=nr_of_iterations)`
 
 In order to work correctly every punctuation mark need to be a single item in such a list. 
 Also agglutination endings and particles need to be separated and presented as single items 

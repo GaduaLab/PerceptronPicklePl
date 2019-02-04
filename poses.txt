@@ -26,7 +26,7 @@ Poses used in simplified and uber simplified models
  'dot',
  'ellipsis',
  'exclamation mark',
- 'fin',
+ 'fin',         - present
  'ger,acc',     - gerundium
  'ger,dat',
  'ger,gen',

@@ -2,18 +2,11 @@
 
 
 
-Provided are six pretrained models for Polish language:
+There are provided two pretrained models, one that provides more information on a word (polish_full_merged_10.pickle, and second that provides less, but is more accurate (polish_simplified.pickle) and is lighter.
 
-polish_full_5.pickle
-polish_simplified_5.pickle
-polish_simplified_uber_5.pickle
-
-and their merged versions.
-Merged versions (maybe it's not the best name) are trained on tags, where agglutinated endings and particles are not treated as single words. This allows to use those models for tagging text, that is not prepared in such a way, that all agglutination particles are detached from words.
-
+They are trained tagged corpora, where agglutinated endings and particles are not treated as single words, if they are written together. This allows us to use those models for tagging text, that is not prepared in such a way, that all agglutination particles are detached from words.
 
 They have been trained on lists of tagged sentence/words extracted from Milionowy Korpus (it can be downloaded from here: http://nkjp.pl/index.php?page=14&lang=0).
-
 
 In order to tag with NLTK perceptron tagger polish sentences, they must be loaded manually in this way:
 
@@ -30,15 +23,6 @@ If you would like to train again a model, do this:
 `tagger.train(tagged_corpus_of_sentences, save_loc='path_where_you_want_to_save_model', nr_iter=nr_of_iterations)`
 
 In order to work correctly every punctuation mark need to be a single item in such a list. 
-Also agglutination endings and particles need to be separated and presented as single items 
-(eg. ['chciał', 'by', 'm'] or ['jeśliby', 'm', 'zechciał']). A simple code for preparing polish
-sentences in this way will be provided.
 
-These models are different from each other on account of data provided for every single part of
-speech. The first one is the fullest, so every word is described as it should be (genders, cases,
-persons etc), but the result is that there are around 800 parts of speech. That leads to the 
-effect that the model not very reliable, especially if your main concern is cases. The second and 
-third are much  simplified, basically for those POSes that are part of some declension model, left
-were only cases, and verbs have only tenses and aspect attributes (in uber even aspect had been
-thrown away). But thanks to that there are only about 100 poses, and tagging (especially for 
-cases) is much more reliable.
+The simplified model operates on a number of about 100 POSes, and is useful for case specification and analysis of a sentence. The full model operates on a number of more than 800 poses. 
+

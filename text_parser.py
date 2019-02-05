@@ -15,7 +15,7 @@ def merge_aggl_by(tagged):
         new_sentence = []
         for index, tagged_word in enumerate(sentence):
 
-            if tagged_word[1] == 'aggl_by':
+            if tagged_word[1] == 'aggl_by' and sentence[index-1][1] == 'praet':
 
                 word = sentence[index-1][0]
                 aggl_word = word + tagged_word[0]
@@ -26,6 +26,9 @@ def merge_aggl_by(tagged):
 
                 less_index += 1
                 continue
+
+            elif tagged_word[1] == 'aggl_by':
+                tagged_word = (tagged_word[0], 'sep_aggl_by')
 
             new_sentence.append(tagged_word)
         new_tagged.append(new_sentence)
@@ -47,6 +50,17 @@ def merge_aggl_endings(tagged):
                 aggl_word = word + tagged_word[0]
 
                 new_sentence[index - 1 - less_index] = (aggl_word, sentence[index - 1][1])
+                poses.add(sentence[index - 1 - less_index][1])
+                less_index += 1
+
+                continue
+            elif len(tagged_word[1])>4 and tagged_word[1][:4] == 'aglt':
+                word = sentence[index - 1][0]
+                aggl_word = word + tagged_word[0]
+                # aglt,sg,pri,imperf,nwok
+                agl_tag_pers_number = tagged_word[1].split(',')[:3]
+                new_agl_tag = ','.join(agl_tag_pers_number)
+                new_sentence[index - 1 - less_index] = (aggl_word, sentence[index - 1][1] + ',' + new_agl_tag)
                 poses.add(sentence[index - 1 - less_index][1])
                 less_index += 1
 

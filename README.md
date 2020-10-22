@@ -1,14 +1,14 @@
 # PerceptronPicklePl
 
+These are pretreined models for perceptron algorithm, that is included into NLTK library of Python. Thanks to them perceptron will be able to analyze Polish sentences with a high degree of accuracy.
 
+There are two pretrained models, one that provides more information on a word (polish_full_merged_10.pickle, and the second one that provides less, but is more accurate (polish_simplified.pickle) and is lighter.
 
-There are provided two pretrained models, one that provides more information on a word (polish_full_merged_10.pickle, and second that provides less, but is more accurate (polish_simplified.pickle) and is lighter.
+They are trained on tagged corpora, where agglutinated endings and particles are not treated as single words, if they are written together. This allows us to use those models for tagging texts, that are not prepared in such a way, that all agglutination particles are detached from words.
 
-They are trained tagged corpora, where agglutinated endings and particles are not treated as single words, if they are written together. This allows us to use those models for tagging text, that is not prepared in such a way, that all agglutination particles are detached from words.
+The training process was conducted on lists of tagged sentence/words extracted from Milionowy Korpus (it can be downloaded from here: http://nkjp.pl/index.php?page=14&lang=0).
 
-They have been trained on lists of tagged sentence/words extracted from Milionowy Korpus (it can be downloaded from here: http://nkjp.pl/index.php?page=14&lang=0).
-
-In order to tag with NLTK perceptron tagger polish sentences, they must be loaded manually in this way:
+In order to tag Polish sentences with NLTK perceptron tagger, they must be loaded manually:
 
 `from nltk.tag.perceptron import PerceptronTagger`
 
@@ -17,6 +17,8 @@ In order to tag with NLTK perceptron tagger polish sentences, they must be loade
 `tagger.load(path_to_pretrained_model)`
 
 `tagger.tag(sentence_as_a_list_of_words) (eg. tagger.tag(['Ala', 'ma', 'kota', '.'])`
+
+so if you want to input a sentence as a text, you have to put its elements in an array.
 
 If you would like to train again a model, do this:
 

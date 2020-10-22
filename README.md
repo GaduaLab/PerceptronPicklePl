@@ -26,5 +26,5 @@ If you would like to train again a model, do this:
 
 In order to work correctly every punctuation mark need to be a single item in such a list. 
 
-The simplified model operates on a number of about 100 POSes, and is useful for case specification and analysis of a sentence. The full model operates on a number of more than 800 poses. 
+The simplified model operates on a number of about 100 POSes, and is useful for case specification and analysis of a sentence. The full model operates on a number of more than 800 poses. The list of those poses can be looked up here https://github.com/GaduaLab/PerceptronPicklePl/blob/master/poses.txt.
 
